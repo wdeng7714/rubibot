@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">RubiBot</string>
+    <string name="send_to_server">Send to Server:</string>
+    <string name="enter_text">enter text</string>
+    <string name="send">Send</string>
+    <string name="received_from_server">Received from Server:</string>
+</resources>
