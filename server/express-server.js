@@ -1,6 +1,9 @@
-const port = 3000;
+const port = 8080;
 
 var express = require('express');
+var http = require('http')
+var io = require('socket.io');
+
 var app = express();
 
 app.get('/', function(req, res) {

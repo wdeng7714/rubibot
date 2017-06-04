@@ -20,7 +20,7 @@ function handleConnection(con) {
 
 	function onConnectionData(data) {
 		console.log('connection data from %s: %j', clientAddress, data);
-		con.write(data);
+		// con.write(data);
 	}
 
 	function onConnectionClose() {
