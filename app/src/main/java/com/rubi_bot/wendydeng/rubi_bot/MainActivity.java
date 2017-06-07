@@ -13,6 +13,7 @@ import android.widget.ImageView;
 public class MainActivity extends Activity {
     Button button;
     ImageView imageView;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,15 +21,27 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         button = (Button) findViewById(R.id.capture_button);
         imageView = (ImageView) findViewById((R.id.image_view));
-        button.setOnClickListener(new View.OnClickListener(){
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivity(camera_intent);
-                Bundle photo = (Bundle) camera_intent.getExtras();
-                //imageView.setImageBitmap(photo);
-                System.out.println(MediaStore.EXTRA_OUTPUT);
+                dispatchTakePictureIntent();
             }
         });
+
+    }
+    private void dispatchTakePictureIntent() {
+        Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (camera_intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(camera_intent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
+            Bundle extras = data.getExtras();
+            Bitmap capturedImage = (Bitmap) extras.get("data");
+            imageView.setImageBitmap(capturedImage);
     }
 }
+}
+
