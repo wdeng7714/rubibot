@@ -1,6 +1,7 @@
 package com.rubi_bot.wendydeng.rubi_bot;
 
 import android.app.Activity;
+import android.support.design.widget.Snackbar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,12 +28,12 @@ enum FACES{
 }
 public class MainActivity extends Activity {
     int BUTTON_HEIGHT = 700;
-    int SCREEN_HEIGHT = 2560;
-    int SCREEN_WIDTH = 1440;
     Button[] captureButton = new Button[6];
     Bitmap[] cubeSideImages = new Bitmap[6];
     Button btnSolve;
     Pair<String, Integer>[] COLORS = new Pair[6];
+    StringBuilder color = new StringBuilder();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +49,7 @@ public class MainActivity extends Activity {
         LinearLayout l1 = (LinearLayout)findViewById(R.id.l1);
         LinearLayout l2 = (LinearLayout)findViewById(R.id.l2);
         for (int i = 0; i < 6; i++){
-            //Order the sides are read: Up Right Front Down Left Bottom
+            //Order the sides are read: Up Right Front Down Left Back
             captureButton[i] = new Button(this);
             captureButton[i].setText(String.format("Side %s", FACES.values()[i]));
             captureButton[i].setId(i);
@@ -77,8 +78,10 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 for(int i = 0; i < 6; i++){
                     if(cubeSideImages[i] == null){
-                        System.out.println("Please fill out all sides of the cube");
-                        bitmapToString(cubeSideImages);
+                        String errMsgStr = "Please fill out all sides of the cube";
+                        Snackbar errMsg = Snackbar.make(view.findViewById(R.id.btnSolve), errMsgStr, Snackbar.LENGTH_SHORT);
+                        errMsg.show();
+                        System.out.println(errMsgStr);
                         return;
                     }
                 }
@@ -86,32 +89,30 @@ public class MainActivity extends Activity {
             }
         });
         //FOR TESTING PURPOSES ONLY
-        captureButton[0].setOnTouchListener(new View.OnTouchListener(){
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent){
-                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN || motionEvent.getAction() == MotionEvent.ACTION_MOVE){
-                    if (cubeSideImages[0] != null){
-                        for (int i = 1; i < 6; i++){
-                            cubeSideImages[i] = cubeSideImages[0];
-                        }
-                        bitmapToString(cubeSideImages);
-
-                    }
-                    dispatchTakePictureIntent(0);
-                }
-                return true;
-            }
-        });
+//        captureButton[0].setOnTouchListener(new View.OnTouchListener(){
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent){
+//                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN || motionEvent.getAction() == MotionEvent.ACTION_MOVE){
+//                    if (cubeSideImages[0] != null){
+//                        for (int i = 1; i < 6; i++){
+//                            cubeSideImages[i] = cubeSideImages[0];
+//                        }
+//                        bitmapToString(cubeSideImages);
+//
+//                    }
+//                    dispatchTakePictureIntent(0);
+//                }
+//                return true;
+//            }
+//        });
     }
     private void bitmapToString(Bitmap[] bmpSides){
         System.out.println("Solving");
-        StringBuilder color;
-        //for(int i = 0; i < 6; i++){
+        for(int i = 0; i < 6; i++){
             color = getColorsSide(bmpSides[0]);
-        //}
+        }
     }
     private StringBuilder getColorsSide(Bitmap bmpSide){
-        StringBuilder color = new StringBuilder();
         int width = bmpSide.getWidth();
         int faceWidth = bmpSide.getWidth()/3;
         System.out.println("facewidth = "+faceWidth);
