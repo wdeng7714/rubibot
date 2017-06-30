@@ -30,7 +30,6 @@ public class MainActivity extends Activity {
     Bitmap[] cubeSideImages = new Bitmap[6];
     Button btnSolve;
     Pair<String, Integer>[] COLORS = new Pair[6];
-    StringBuilder color = new StringBuilder();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,64 +75,45 @@ public class MainActivity extends Activity {
                 for (int i = 0; i < 6; i++) {
                     if (cubeSideImages[i] == null) {
                         String errMsgStr = "Please fill out all sides of the cube";
-//                        new ServerConnection().execute();
-                        new ServerConnection().execute();
-//                        new ServerConnection().execute("THISISASAMPLECUBESTRING");
                         Snackbar errMsg = Snackbar.make(view.findViewById(R.id.btnSolve), errMsgStr, Snackbar.LENGTH_SHORT);
                         errMsg.show();
                         System.out.println(errMsgStr);
                         return;
                     }
                 }
-                bitmapToString(cubeSideImages);
+                solve();
             }
         });
-        //FOR TESTING PURPOSES ONLY
-//        captureButton[0].setOnTouchListener(new View.OnTouchListener(){
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent){
-//                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN || motionEvent.getAction() == MotionEvent.ACTION_MOVE){
-//                    if (cubeSideImages[0] != null){
-//                        for (int i = 1; i < 6; i++){
-//                            cubeSideImages[i] = cubeSideImages[0];
-//                        }
-//                        bitmapToString(cubeSideImages);
-//
-//                    }
-//                    dispatchTakePictureIntent(0);
-//                }
-//                return true;
-//            }
-//        });
     }
-
-    private void bitmapToString(Bitmap[] bmpSides) {
-        System.out.println("Solving");
-        for (int i = 0; i < 6; i++) {
-            color = getColorsSide(bmpSides[0]);
-        }
-//        getSolution(color);
-    }
-
-    private StringBuilder getColorsSide(Bitmap bmpSide) {
+    private StringBuilder getColorSide(Bitmap bmpSide) {
         int width = bmpSide.getWidth();
         int faceWidth = bmpSide.getWidth() / 3;
         System.out.println("facewidth = " + faceWidth);
+        StringBuilder c = new StringBuilder();
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 int x = width / 6;
                 x += j * faceWidth;
                 int y = width / 6;
                 y += i * faceWidth;
-                System.out.println("x = " + x + ", y = " + y);
                 char pixelColor = getColorsPixel(bmpSide.getPixel(x, y));
-                color.append(pixelColor);
+                c.append(pixelColor);
             }
         }
-        System.out.println(color);
-        return color;
+        return c;
     }
+    private void solve(){
+        System.out.println("Solving");
+        StringBuilder colorString = new StringBuilder();
+        for (int i = 0; i < 6; i++) {
+            colorString.append(getColorSide(cubeSideImages[i]));
+        }
+        System.out.println("color string = " + colorString);
+        StringBuilder cubeString = getCubeStringFromColorString(colorString);
+        System.out.println("cube string = " + cubeString);
+        new ServerConnection(cubeString).execute();
 
+    }
     private char getColorsPixel(int pixel) {
         Pair match = getEuclidianDist(pixel);
         if (match.first == "RED") {
@@ -188,19 +168,49 @@ public class MainActivity extends Activity {
         }
     }
 
+    private StringBuilder getCubeStringFromColorString(StringBuilder colorString){
+        for(int i = 0; i < colorString.length(); i++){
+            String cubletChar = "-";
+            switch(colorString.charAt(i)){
+                case 'W':
+                    cubletChar = "F";
+                    break;
+                case 'B':
+                    cubletChar = "R";
+                    break;
+                case 'Y':
+                    cubletChar = "B";
+                    break;
+                case 'G':
+                    cubletChar = "L";
+                    break;
+                case 'O':
+                    cubletChar = "U";
+                    break;
+                case 'R':
+                    cubletChar = "D";
+                    break;
+            }
+            colorString.replace(i, i+1, cubletChar);
+        }
+        return colorString;
+    }
     class ServerConnection extends AsyncTask<String, Void, String> {
+        StringBuilder cubeString;
+        private ServerConnection(StringBuilder string){
+            cubeString = string;
+        }
         @Override
         protected String doInBackground(String... strings) {
             final String host = "192.168.1.13";
             final int port = 8080;
             try {
-                System.out.println("Creating socket connection to " + host + port);
                 Socket sock = new Socket(host, port);
                 BufferedReader br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
                 PrintWriter out = new PrintWriter(sock.getOutputStream(), true);
-                out.print("hello");
-                String solution = br.readLine();
-                System.out.println("server says:" + solution);
+                System.out.println(cubeString);
+                out.println("cubeString");
+                System.out.println("server says " + br.readLine());
                 sock.close();
             } catch (Exception e) {
                 System.out.println("Unable to connect to solution server " + e.toString());
