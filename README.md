@@ -11,7 +11,7 @@
 ## Installation
 
 ```bash
-$ git clone https://github.com/changangela/rubibot
+$ git clone https://github.com/wdeng7714/rubibot
 $ cd rubibot
 ```
 ### Hardware
